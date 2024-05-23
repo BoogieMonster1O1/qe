@@ -92,7 +92,7 @@ public class BlockHeader {
         }
     }
 
-    public static fromDataInputStream(DataInputStream stream) {
+    public static BlockHeader fromDataInputStream(DataInputStream stream) {
         try {
             String hash = stream.readUTF();
             String previousHash = stream.readUTF();
