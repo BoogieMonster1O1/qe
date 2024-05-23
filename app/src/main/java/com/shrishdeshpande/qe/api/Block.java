@@ -1,6 +1,6 @@
-package com.shrishdeshpande.qe.blockchain;
+package com.shrishdeshpande.qe.api;
 
-import com.shrishdeshpande.qe.blockchain.transaction.Transaction;
+import com.shrishdeshpande.qe.api.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class Block {
         }
 
         public Block build() {
-            if (transactions.size() != header.getNumTransactions()) {
+            if (transactions.size() != header.numTransactions()) {
                 throw new IllegalStateException("Number of transactions does not match the number of transactions in the header");
             }
 

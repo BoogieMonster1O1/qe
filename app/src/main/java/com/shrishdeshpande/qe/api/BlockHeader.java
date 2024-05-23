@@ -1,82 +1,19 @@
-package com.shrishdeshpande.qe.blockchain;
+package com.shrishdeshpande.qe.api;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-public class BlockHeader {
-    /**
-     * The hash of the block
-     */
-    private final String hash;
-
-    /**
-     * The hash of the previous block
-     */
-    private final String previousHash;
-
-    /**
-     * The timestamp of the block, represented as milliseconds since the Unix epoch
-     */
-    private final long timestamp;
-
-    /**
-     * The nonce of the block
-     */
-    private final long nonce;
-
-    /**
-     * The difficulty of the block
-     */
-    private final int difficulty;
-
-    /**
-     * The merkle root of the block
-     */
-    private final String merkleRoot;
-
-    /**
-     * The number of transactions in the block
-     */
-    private final int numTransactions;
-
-
-    public BlockHeader(String hash, String previousHash, long timestamp, long nonce, int difficulty, String merkleRoot, int numTransactions) {
-        this.hash = hash;
-        this.previousHash = previousHash;
-        this.timestamp = timestamp;
-        this.nonce = nonce;
-        this.difficulty = difficulty;
-        this.merkleRoot = merkleRoot;
-        this.numTransactions = numTransactions;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public String getPreviousHash() {
-        return previousHash;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getNonce() {
-        return nonce;
-    }
-
-    public int getDifficulty() {
-        return difficulty;
-    }
-
-    public String getMerkleRoot() {
-        return merkleRoot;
-    }
-
-    public int getNumTransactions() {
-        return numTransactions;
-    }
+/**
+ * @param hash            The hash of the block
+ * @param previousHash    The hash of the previous block
+ * @param timestamp       The timestamp of the block, represented as milliseconds since the Unix epoch
+ * @param nonce           The nonce of the block
+ * @param difficulty      The difficulty of the block
+ * @param merkleRoot      The merkle root of the block
+ * @param numTransactions The number of transactions in the block
+ */
+public record BlockHeader(String hash, String previousHash, long timestamp, long nonce, int difficulty,
+                          String merkleRoot, int numTransactions) {
 
     public void writeToStream(DataOutputStream stream) {
         try {
@@ -103,14 +40,14 @@ public class BlockHeader {
             int numTransactions = stream.readInt();
 
             return new BlockHeader.Builder()
-                .setHash(hash)
-                .setPreviousHash(previousHash)
-                .setTimestamp(timestamp)
-                .setNonce(nonce)
-                .setDifficulty(difficulty)
-                .setMerkleRoot(merkleRoot)
-                .setNumTransactions(numTransactions)
-                .build();
+                    .setHash(hash)
+                    .setPreviousHash(previousHash)
+                    .setTimestamp(timestamp)
+                    .setNonce(nonce)
+                    .setDifficulty(difficulty)
+                    .setMerkleRoot(merkleRoot)
+                    .setNumTransactions(numTransactions)
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

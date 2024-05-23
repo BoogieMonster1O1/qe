@@ -1,4 +1,4 @@
-package com.shrishdeshpande.qe.blockchain.transaction;
+package com.shrishdeshpande.qe.api.transaction;
 
 public class CryptoTransaction extends Transaction {
     private final double amount;

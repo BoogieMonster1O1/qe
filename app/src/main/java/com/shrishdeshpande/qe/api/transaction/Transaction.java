@@ -1,4 +1,4 @@
-package com.shrishdeshpande.qe.blockchain.transaction;
+package com.shrishdeshpande.qe.api.transaction;
 
 public abstract class Transaction {
 
