@@ -40,6 +40,8 @@ public abstract class Transaction {
         return recipientBalance;
     }
 
+    public abstract String hash();
+
     public enum Type {
         CRYPTO,
         NFT
