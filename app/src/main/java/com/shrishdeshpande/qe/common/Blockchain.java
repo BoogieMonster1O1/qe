@@ -1,9 +1,11 @@
 package com.shrishdeshpande.qe.common;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shrishdeshpande.qe.api.Block;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -12,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Blockchain {
     private static Blockchain instance;
 
-    private final ObjectMapper objectMapper;
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final Lock lock;
 
@@ -24,7 +26,6 @@ public class Blockchain {
         this.file = new File(path);
         this.blocks = new LinkedList<>();
         this.lock = new ReentrantLock();
-        this.objectMapper = new ObjectMapper();
     }
 
     public List<Block> getBlocks() {
@@ -42,10 +43,8 @@ public class Blockchain {
     }
 
     private void writeToFile() {
-        // Write blocks to file
-
         try {
-            objectMapper.writeValue(file, blocks);
+            OBJECT_MAPPER.writeValue(file, blocks);
         } catch (Exception e) {
             throw new RuntimeException("Failed to write blocks to file", e);
         }
@@ -53,6 +52,13 @@ public class Blockchain {
 
     public static void init(String path) {
         instance = new Blockchain(path);
+        List<Block> blocks;
+        try {
+            blocks = OBJECT_MAPPER.readValue(new File(path), new TypeReference<List<Block>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        instance.blocks.addAll(blocks);
     }
 
     public static Blockchain getInstance() {
