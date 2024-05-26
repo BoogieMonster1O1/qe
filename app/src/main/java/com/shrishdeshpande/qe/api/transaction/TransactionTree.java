@@ -18,6 +18,10 @@ public class TransactionTree {
         root = buildMerkleTree(leaves);
     }
 
+    public String rootHash() {
+        return root.getHash();
+    }
+
     private List<Node> createLeafNodes(List<Transaction> transactions) {
         return transactions.stream()
                 .map(Node::new)

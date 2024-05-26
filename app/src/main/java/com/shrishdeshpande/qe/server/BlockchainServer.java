@@ -1,5 +1,6 @@
 package com.shrishdeshpande.qe.server;
 
+import com.shrishdeshpande.qe.api.Block;
 import com.shrishdeshpande.qe.api.transaction.Transaction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,10 @@ public class BlockchainServer {
         return instance;
     }
 
+    public void mine() {
+
+    }
+
     public void addTransaction(Transaction transaction) {
         // Check if transaction exists
         if (mempool.contains(transaction)) {
@@ -29,5 +34,13 @@ public class BlockchainServer {
         }
         mempool.add(transaction);
         LOGGER.info("Added transaction to mempool: {}", transaction);
+    }
+
+    public void removeTransactions(List<Block> blockchain) {
+        for (Block block : blockchain) {
+            for (Transaction transaction : block.getTransactions()) {
+                mempool.remove(transaction);
+            }
+        }
     }
 }

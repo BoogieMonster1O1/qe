@@ -10,7 +10,7 @@ public class Block {
 
     private final List<Transaction> transactions;
 
-    private Block(BlockHeader header, List<Transaction> transactions) {
+    public Block(BlockHeader header, List<Transaction> transactions) {
         this.header = header;
         this.transactions = transactions;
     }

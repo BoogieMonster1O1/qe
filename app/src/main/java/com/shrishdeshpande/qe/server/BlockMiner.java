@@ -1,6 +1,9 @@
 package com.shrishdeshpande.qe.server;
 
+import com.shrishdeshpande.qe.api.Block;
+import com.shrishdeshpande.qe.api.BlockHeader;
 import com.shrishdeshpande.qe.api.transaction.Transaction;
+import com.shrishdeshpande.qe.api.transaction.TransactionTree;
 import com.shrishdeshpande.qe.util.TaskQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,11 +24,41 @@ public class BlockMiner {
         LOGGER.info("Initialized block miner with {} transactions", transactions.size());
     }
 
+    public Block mine(String whoami, Block last, List<Transaction> transactions) {
+        LOGGER.info("Mining block with {} transactions...", transactions.size());
+        TransactionTree tree = new TransactionTree(transactions);
+        String merkleRoot = tree.rootHash();
+        String previousHash = last.getHeader().hash();
+        int numTransactions = transactions.size();
+        String miner = whoami;
+        long nonce = 0;
+        while (true) {
+            byte[] hash = BlockHeader.hash(previousHash, nonce, merkleRoot);
+            // Difficulty: 4 leading zeros
+            if (hash[0] == 0 && hash[1] == 0 && hash[2] == 0 && hash[3] == 0) {
+                LOGGER.info("Mined block with nonce {}", nonce);
+                return new Block.Builder()
+                        .header(new BlockHeader.Builder()
+                                .setHash(BlockHeader.hashHex(previousHash, nonce, merkleRoot))
+                                .setPreviousHash(previousHash)
+                                .setTimestamp(System.currentTimeMillis())
+                                .setNonce(nonce)
+                                .setMerkleRoot(merkleRoot)
+                                .setNumTransactions(numTransactions)
+                                .setMiner(miner)
+                                .build())
+                        .transactions(transactions)
+                        .build();
+            }
+            nonce++;
+        }
+    }
+
     public void mine(Cancellation cancellation) {
         LOGGER.info("Mining block with {} transactions...", transactions.size());
 
         while (!cancellation.isCancelled()) {
-            // TODO: Implement mining logic
+            // TODO: parallelize mining
         }
 
         LOGGER.info("Mining cancelled");

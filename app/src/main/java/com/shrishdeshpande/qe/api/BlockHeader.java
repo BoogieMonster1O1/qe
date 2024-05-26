@@ -1,5 +1,7 @@
 package com.shrishdeshpande.qe.api;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
@@ -8,11 +10,10 @@ import java.io.DataOutputStream;
  * @param previousHash    The hash of the previous block
  * @param timestamp       The timestamp of the block, represented as milliseconds since the Unix epoch
  * @param nonce           The nonce of the block
- * @param difficulty      The difficulty of the block
  * @param merkleRoot      The merkle root of the block
  * @param numTransactions The number of transactions in the block
  */
-public record BlockHeader(String hash, String previousHash, long timestamp, long nonce, int difficulty,
+public record BlockHeader(String hash, String previousHash, long timestamp, long nonce,
                           String merkleRoot, int numTransactions, String miner) {
 
     public void writeToStream(DataOutputStream stream) {
@@ -21,7 +22,6 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
             stream.writeUTF(previousHash);
             stream.writeLong(timestamp);
             stream.writeLong(nonce);
-            stream.writeInt(difficulty);
             stream.writeUTF(merkleRoot);
             stream.writeInt(numTransactions);
             stream.writeUTF(miner);
@@ -30,13 +30,20 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
         }
     }
 
+    public static byte[] hash(String previousHash, long nonce, String merkleRoot) {
+        return DigestUtils.sha256(String.format("%s%d%s", previousHash, nonce, merkleRoot));
+    }
+
+    public static String hashHex(String previousHash, long nonce, String merkleRoot) {
+        return DigestUtils.sha256Hex(String.format("%s%d%s", previousHash, nonce, merkleRoot));
+    }
+
     public static BlockHeader fromDataInputStream(DataInputStream stream) {
         try {
             String hash = stream.readUTF();
             String previousHash = stream.readUTF();
             long timestamp = stream.readLong();
             long nonce = stream.readLong();
-            int difficulty = stream.readInt();
             String merkleRoot = stream.readUTF();
             int numTransactions = stream.readInt();
             String miner = stream.readUTF();
@@ -46,9 +53,9 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
                     .setPreviousHash(previousHash)
                     .setTimestamp(timestamp)
                     .setNonce(nonce)
-                    .setDifficulty(difficulty)
                     .setMerkleRoot(merkleRoot)
                     .setNumTransactions(numTransactions)
+                    .setMiner(miner)
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -65,7 +72,7 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
         private int numTransactions;
         private String miner;
 
-        Builder setHash(String hash) {
+        public Builder setHash(String hash) {
             this.hash = hash;
             return this;
         }
