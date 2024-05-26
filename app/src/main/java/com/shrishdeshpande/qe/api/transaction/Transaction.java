@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CryptoTransaction.class, name = "crypto"),
-        @JsonSubTypes.Type(value = NftTransaction.class, name = "nft")
+//        @JsonSubTypes.Type(value = NftTransaction.class, name = "nft")
 })
 public abstract class Transaction {
 

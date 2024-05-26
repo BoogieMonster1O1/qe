@@ -24,12 +24,42 @@ public class BlockchainClient {
     public static final SikeParam SIKE_PARAM = new SikeParamP434(ImplementationType.OPTIMIZED);
     public static final KeyGenerator KEY_GENERATOR = new KeyGenerator(SIKE_PARAM);
 
+    private final String name;
+
     private final String path;
 
-    public final KeyPair keyPair;
+    public KeyPair keyPair;
 
     private BlockchainClient(String path) {
         this.path = path;
+
+        this.name = parseName(path);
+    }
+
+    public static String parseName(String path) {
+        Path namePath = Path.of(path, "name");
+        String name;
+        if (Files.exists(namePath)) {
+            LOGGER.info("Loading name from {}", namePath);
+            try {
+                name = Files.readString(namePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            LOGGER.info("Generating name and saving to {}", namePath);
+            name = "Alice";
+            try {
+                Files.createDirectories(namePath.getParent());
+                Files.writeString(namePath, name);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return name;
+    }
+
+    public void parseKey() {
         Path keyPairPath = Path.of(path, "keypair");
         if (Files.exists(keyPairPath)) {
             LOGGER.info("Loading keypair from {}", keyPairPath);
