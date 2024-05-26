@@ -8,7 +8,7 @@ public class CryptoTransaction extends Transaction {
     private String signature;
 
     public CryptoTransaction(Type type, String sender, String recipient, double senderBalance, double recipientBalance, double amount) {
-        super(type, sender, recipient, senderBalance, recipientBalance);
+        super(type, sender, recipient);
         this.amount = amount;
     }
 

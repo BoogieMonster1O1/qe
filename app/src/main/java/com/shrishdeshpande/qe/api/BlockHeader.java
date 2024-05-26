@@ -13,7 +13,7 @@ import java.io.DataOutputStream;
  * @param numTransactions The number of transactions in the block
  */
 public record BlockHeader(String hash, String previousHash, long timestamp, long nonce, int difficulty,
-                          String merkleRoot, int numTransactions) {
+                          String merkleRoot, int numTransactions, String miner) {
 
     public void writeToStream(DataOutputStream stream) {
         try {
@@ -24,6 +24,7 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
             stream.writeInt(difficulty);
             stream.writeUTF(merkleRoot);
             stream.writeInt(numTransactions);
+            stream.writeUTF(miner);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,6 +39,7 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
             int difficulty = stream.readInt();
             String merkleRoot = stream.readUTF();
             int numTransactions = stream.readInt();
+            String miner = stream.readUTF();
 
             return new BlockHeader.Builder()
                     .setHash(hash)
@@ -61,6 +63,7 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
         private int difficulty;
         private String merkleRoot;
         private int numTransactions;
+        private String miner;
 
         Builder setHash(String hash) {
             this.hash = hash;
@@ -97,8 +100,13 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
             return this;
         }
 
+        public Builder setMiner(String miner) {
+            this.miner = miner;
+            return this;
+        }
+
         public BlockHeader build() {
-            return new BlockHeader(hash, previousHash, timestamp, nonce, difficulty, merkleRoot, numTransactions);
+            return new BlockHeader(hash, previousHash, timestamp, nonce, difficulty, merkleRoot, numTransactions, miner);
         }
     }
 }

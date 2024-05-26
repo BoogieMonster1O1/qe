@@ -8,16 +8,10 @@ public abstract class Transaction {
 
     protected final String recipient;
 
-    protected final double senderBalance;
-
-    protected final double recipientBalance;
-
-    public Transaction(Type type, String sender, String recipient, double senderBalance, double recipientBalance) {
+    public Transaction(Type type, String sender, String recipient) {
         this.type = type;
         this.sender = sender;
         this.recipient = recipient;
-        this.senderBalance = senderBalance;
-        this.recipientBalance = recipientBalance;
     }
 
     public Type getType() {
@@ -30,14 +24,6 @@ public abstract class Transaction {
 
     public String getRecipient() {
         return recipient;
-    }
-
-    public double getSenderBalance() {
-        return senderBalance;
-    }
-
-    public double getRecipientBalance() {
-        return recipientBalance;
     }
 
     public abstract String hash();
