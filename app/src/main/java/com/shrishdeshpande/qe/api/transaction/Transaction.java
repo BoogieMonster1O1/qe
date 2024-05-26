@@ -14,25 +14,19 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 //        @JsonSubTypes.Type(value = NftTransaction.class, name = "nft")
 })
 public abstract class Transaction {
-
-    protected final Type type;
-
     protected final String sender;
 
     protected final String recipient;
 
     protected final long timestamp;
 
-    public Transaction(Type type, String sender, String recipient, long timestamp) {
-        this.type = type;
+    public Transaction(String sender, String recipient, long timestamp) {
         this.sender = sender;
         this.recipient = recipient;
         this.timestamp = timestamp;
     }
 
-    public Type getType() {
-        return type;
-    }
+    public abstract Type getType();
 
     public String getSender() {
         return sender;
@@ -47,6 +41,10 @@ public abstract class Transaction {
     }
 
     public abstract String hash();
+
+    public String readable() {
+        return String.format("%s -> %s: %s", sender, recipient, timestamp);
+    }
 
     public enum Type {
         CRYPTO,

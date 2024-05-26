@@ -13,17 +13,33 @@ public class BlockchainServer {
 
     private static BlockchainServer instance;
 
-    private final List<Transaction> mempool = new ArrayList<>();
+    public final List<Transaction> mempool = new ArrayList<>();
+
+    private final String name;
+
+    private BlockchainServer(String name) {
+        this.name = name;
+    }
+
+    public static void initWithName(String name) {
+        instance = new BlockchainServer(name);
+    }
 
     public static BlockchainServer getInstance() {
         if (instance == null) {
-            instance = new BlockchainServer();
+            throw new IllegalStateException("BlockchainServer not initialized");
         }
         return instance;
     }
 
-    public void mine() {
+    public Block genesis() {
+        BlockMiner miner = new BlockMiner(new ArrayList<>());
+        return miner.mine(name, null);
+    }
 
+    public Block mine(Block previous) {
+        BlockMiner miner = new BlockMiner(mempool);
+        return miner.mine(name, previous);
     }
 
     public void addTransaction(Transaction transaction) {

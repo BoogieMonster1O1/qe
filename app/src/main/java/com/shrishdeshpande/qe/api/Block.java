@@ -1,6 +1,9 @@
 package com.shrishdeshpande.qe.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shrishdeshpande.qe.api.transaction.Transaction;
+import com.shrishdeshpande.qe.util.ChronoUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +13,8 @@ public class Block {
 
     private final List<Transaction> transactions;
 
-    public Block(BlockHeader header, List<Transaction> transactions) {
+    @JsonCreator
+    public Block(@JsonProperty("header") BlockHeader header, @JsonProperty("transactions") List<Transaction> transactions) {
         this.header = header;
         this.transactions = transactions;
     }
@@ -21,6 +25,15 @@ public class Block {
 
     public List<Transaction> getTransactions() {
         return transactions;
+    }
+
+    public String readable() {
+        String local = ChronoUtils.convertUnixMillisToLocalDateTime(timestamp());
+        return String.format("%s : %s -> %s: %d", local, header.previousHash(), header.hash(), header.numTransactions());
+    }
+
+    public long timestamp() {
+        return header.timestamp();
     }
 
     public static class Builder {

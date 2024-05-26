@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.Queue;
 
 public class BlockMiner {
     private static final Logger LOGGER = LogManager.getLogger(BlockMiner.class);
@@ -24,18 +23,21 @@ public class BlockMiner {
         LOGGER.info("Initialized block miner with {} transactions", transactions.size());
     }
 
-    public Block mine(String whoami, Block last, List<Transaction> transactions) {
+    public Block mine(String whoami, Block last) {
         LOGGER.info("Mining block with {} transactions...", transactions.size());
         TransactionTree tree = new TransactionTree(transactions);
         String merkleRoot = tree.rootHash();
-        String previousHash = last.getHeader().hash();
+        String previousHash = last == null ? "" : last.getHeader().hash();
         int numTransactions = transactions.size();
         String miner = whoami;
         long nonce = 0;
         while (true) {
             byte[] hash = BlockHeader.hash(previousHash, nonce, merkleRoot);
-            // Difficulty: 4 leading zeros
-            if (hash[0] == 0 && hash[1] == 0 && hash[2] == 0 && hash[3] == 0) {
+            if (nonce % 25 == 0) {
+//                LOGGER.info("Mining block with nonce {}", nonce);
+            }
+            // Difficulty: 8 leading zeros
+            if (hash[0] == 0 && hash[1] == 0) {
                 LOGGER.info("Mined block with nonce {}", nonce);
                 return new Block.Builder()
                         .header(new BlockHeader.Builder()

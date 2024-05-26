@@ -1,5 +1,7 @@
 package com.shrishdeshpande.qe.client;
 
+import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
+import com.shrishdeshpande.qe.server.BlockchainServer;
 import com.wultra.security.pqc.sike.crypto.KeyGenerator;
 import com.wultra.security.pqc.sike.model.ImplementationType;
 import com.wultra.security.pqc.sike.model.Party;
@@ -24,7 +26,7 @@ public class BlockchainClient {
     public static final SikeParam SIKE_PARAM = new SikeParamP434(ImplementationType.OPTIMIZED);
     public static final KeyGenerator KEY_GENERATOR = new KeyGenerator(SIKE_PARAM);
 
-    private final String name;
+    public final String name;
 
     private final String path;
 
@@ -118,5 +120,15 @@ public class BlockchainClient {
             throw new IllegalStateException("Client has not been initialized");
         }
         return instance;
+    }
+
+    public void transact(String to, double amount) {
+        CryptoTransaction t = new CryptoTransaction(name, to, amount);
+
+        // TODO: BROADCAST
+
+        BlockchainServer.getInstance().addTransaction(t);
+
+        LOGGER.info("Transaction sent: {}", t);
     }
 }

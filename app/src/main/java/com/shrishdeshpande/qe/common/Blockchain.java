@@ -1,20 +1,38 @@
 package com.shrishdeshpande.qe.common;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.shrishdeshpande.qe.api.Block;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.fasterxml.jackson.core.JsonGenerator.Feature.IGNORE_UNKNOWN;
+
 public class Blockchain {
+
+
+    private static final Logger LOGGER = LogManager.getLogger(Blockchain.class);
     private static Blockchain instance;
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        OBJECT_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
 
     private final Lock lock;
 
@@ -22,8 +40,8 @@ public class Blockchain {
 
     private final List<Block> blocks;
 
-    private Blockchain(String path) {
-        this.file = new File(path);
+    private Blockchain(File path) {
+        this.file = path;
         this.blocks = new LinkedList<>();
         this.lock = new ReentrantLock();
     }
@@ -35,6 +53,7 @@ public class Blockchain {
     public void addBlock(Block block) {
         this.lock.lock();
         blocks.add(block);
+        blocks.sort(Comparator.comparing(Block::timestamp));
         this.lock.unlock();
 
         this.lock.lock();
@@ -51,14 +70,26 @@ public class Blockchain {
     }
 
     public static void init(String path) {
-        instance = new Blockchain(path);
         List<Block> blocks;
-        try {
-            blocks = OBJECT_MAPPER.readValue(new File(path), new TypeReference<List<Block>>() {});
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        Path bcpath = Path.of(path, "c.json");
+        instance = new Blockchain(bcpath.toFile());
+
+        if (!Files.exists(bcpath)) {
+            try {
+                Files.createFile(bcpath);
+                Files.write(bcpath, "[]".getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                blocks = OBJECT_MAPPER.readValue(bcpath.toFile(), new TypeReference<>() {});
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            instance.blocks.addAll(blocks);
+            blocks.sort(Comparator.comparing(Block::timestamp));
         }
-        instance.blocks.addAll(blocks);
     }
 
     public static Blockchain getInstance() {

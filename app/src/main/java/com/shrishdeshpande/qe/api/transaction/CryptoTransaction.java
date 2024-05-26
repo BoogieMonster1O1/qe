@@ -1,12 +1,22 @@
 package com.shrishdeshpande.qe.api.transaction;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.shrishdeshpande.qe.util.ChronoUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+
+import javax.swing.text.DateFormatter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class CryptoTransaction extends Transaction {
     private final double amount;
 
-    public CryptoTransaction(String sender, String recipient, long timestamp, double amount) {
-        super(Type.CRYPTO, sender, recipient, timestamp);
+    @JsonCreator
+    public CryptoTransaction(@JsonProperty("sender") String sender, @JsonProperty("recipient") String recipient, @JsonProperty("timestamp") long timestamp, @JsonProperty("amount") double amount) {
+        super(sender, recipient, timestamp);
         this.amount = amount;
     }
 
@@ -14,8 +24,19 @@ public class CryptoTransaction extends Transaction {
         this(sender, recipient, System.currentTimeMillis(), amount);
     }
 
+    @Override
+    public Type getType() {
+        return Type.CRYPTO;
+    }
+
     public double getAmount() {
         return amount;
+    }
+
+    @Override
+    public String readable() {
+        String local = ChronoUtils.convertUnixMillisToLocalDateTime(timestamp);
+        return String.format("%s : %s -> %s: %f", local, sender, recipient, amount);
     }
 
     @Override

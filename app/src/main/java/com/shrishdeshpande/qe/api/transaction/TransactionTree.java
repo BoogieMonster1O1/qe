@@ -15,7 +15,11 @@ public class TransactionTree {
 
         List<Node> leaves = createLeafNodes(list);
 
-        root = buildMerkleTree(leaves);
+        if (leaves.isEmpty()) {
+            root = new Node();
+        } else {
+            root = buildMerkleTree(leaves);
+        }
     }
 
     public String rootHash() {
@@ -87,6 +91,8 @@ public class TransactionTree {
         public String getHash() {
             if (transaction != null) {
                 return hash;
+            } else if (left == null || right == null) {
+                return "";
             }
 
             return DigestUtils.sha256Hex(left.getHash() + right.getHash());
