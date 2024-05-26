@@ -67,7 +67,6 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
         private String previousHash;
         private long timestamp;
         private long nonce;
-        private int difficulty;
         private String merkleRoot;
         private int numTransactions;
         private String miner;
@@ -92,11 +91,6 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
             return this;
         }
 
-        public Builder setDifficulty(int difficulty) {
-            this.difficulty = difficulty;
-            return this;
-        }
-
         public Builder setMerkleRoot(String merkleRoot) {
             this.merkleRoot = merkleRoot;
             return this;
@@ -113,7 +107,7 @@ public record BlockHeader(String hash, String previousHash, long timestamp, long
         }
 
         public BlockHeader build() {
-            return new BlockHeader(hash, previousHash, timestamp, nonce, difficulty, merkleRoot, numTransactions, miner);
+            return new BlockHeader(hash, previousHash, timestamp, nonce, merkleRoot, numTransactions, miner);
         }
     }
 }
