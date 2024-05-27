@@ -58,6 +58,7 @@ public class App {
         label:
         while (true) {
             String command = sc.nextLine();
+            line();
             switch (command) {
                 case "exit":
                     break label;
@@ -87,6 +88,7 @@ public class App {
                     Block block = BlockchainServer.getInstance().mine(last);
                     Blockchain.getInstance().addBlock(block);
                     SocketMessages.newBlock(Blockchain.getInstance().getBlocks());
+                    BlockchainServer.getInstance().clearMemPool();
                     break;
                 case "mempool":
                     BlockchainServer.getInstance().mempool.stream().map(Transaction::readable).forEach(System.out::println);
@@ -95,8 +97,13 @@ public class App {
                     Blockchain.getInstance().getBlocks().stream().map(Block::readable).forEach(System.out::println);
                     break;
             }
+            line();
         }
 
         LOGGER.info("Shutting down QE CLI");
+    }
+
+    private static void line() {
+        System.out.println("--------------------------------------------------");
     }
 }

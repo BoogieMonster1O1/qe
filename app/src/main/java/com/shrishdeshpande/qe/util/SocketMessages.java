@@ -1,6 +1,7 @@
 package com.shrishdeshpande.qe.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shrishdeshpande.qe.api.Block;
 import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
@@ -18,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SocketMessages {
     public static final ConcurrentLinkedQueue<String> MESSAGE_QUEUE = new ConcurrentLinkedQueue<>();
     private static final Logger LOGGER = LogManager.getLogger(SocketMessages.class);
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     private static void newMessage(IpcRepresentable representable) {
         String str;
