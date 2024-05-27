@@ -76,6 +76,7 @@ public class App {
                             .map(Block::getTransactions)
                             .flatMap(List::stream)
                             .sorted()
+                            .distinct()
                             .map(Transaction::readable).forEach(System.out::println);
                     break;
                 case "genesis":
@@ -104,6 +105,6 @@ public class App {
     }
 
     private static void line() {
-        System.out.println("--------------------------------------------------");
+        System.out.println("---------------------------------------------------------------------");
     }
 }

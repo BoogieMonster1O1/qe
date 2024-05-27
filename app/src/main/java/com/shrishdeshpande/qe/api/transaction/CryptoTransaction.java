@@ -49,8 +49,8 @@ public class CryptoTransaction extends Transaction {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        Transaction rhs = (Transaction) obj;
-        return sender.equals(rhs.sender) && recipient.equals(rhs.recipient) && timestamp == rhs.timestamp;
+        CryptoTransaction rhs = (CryptoTransaction) obj;
+        return sender.equals(rhs.sender) && recipient.equals(rhs.recipient) && timestamp == rhs.timestamp && amount == rhs.amount;
     }
 
     public String hash() {
