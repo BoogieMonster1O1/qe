@@ -9,8 +9,8 @@ import com.shrishdeshpande.qe.client.BlockchainClient;
 import com.shrishdeshpande.qe.common.Blockchain;
 import com.shrishdeshpande.qe.server.BlockchainServer;
 import com.shrishdeshpande.qe.util.SocketMessages;
-import com.shrishdeshpande.qe.util.UnixDomainSocketClient;
-import com.shrishdeshpande.qe.util.UnixDomainSocketServer;
+import com.shrishdeshpande.qe.util.UnixSocketClient;
+import com.shrishdeshpande.qe.util.UnixSocketServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -48,9 +48,9 @@ public class App {
         Blockchain.init(path);
 
         if (server) {
-            UnixDomainSocketServer.start();
+            UnixSocketServer.start();
         } else {
-            UnixDomainSocketClient.start();
+            UnixSocketClient.start();
         }
 
         Scanner sc = new Scanner(System.in);
