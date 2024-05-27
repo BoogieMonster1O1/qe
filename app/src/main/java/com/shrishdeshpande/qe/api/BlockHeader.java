@@ -11,7 +11,7 @@ import java.io.DataOutputStream;
  * @param timestamp       The timestamp of the block, represented as milliseconds since the Unix epoch
  * @param nonce           The nonce of the block
  * @param merkleRoot      The merkle root of the block
- * @param numTransactions The number of transactions in the block
+ * @param numTransactions The number of blocks in the block
  */
 public record BlockHeader(String hash, String previousHash, long timestamp, long nonce,
                           String merkleRoot, int numTransactions, String miner) {

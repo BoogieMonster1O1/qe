@@ -20,11 +20,11 @@ public class BlockMiner {
 
     public BlockMiner(List<Transaction> transactions) {
         this.transactions = transactions;
-        LOGGER.info("Initialized block miner with {} transactions", transactions.size());
+        LOGGER.info("Initialized block miner with {} blocks", transactions.size());
     }
 
     public Block mine(String whoami, Block last) {
-        LOGGER.info("Mining block with {} transactions...", transactions.size());
+        LOGGER.info("Mining block with {} blocks...", transactions.size());
         TransactionTree tree = new TransactionTree(transactions);
         String merkleRoot = tree.rootHash();
         String previousHash = last == null ? "" : last.getHeader().hash();
@@ -57,7 +57,7 @@ public class BlockMiner {
     }
 
     public void mine(Cancellation cancellation) {
-        LOGGER.info("Mining block with {} transactions...", transactions.size());
+        LOGGER.info("Mining block with {} blocks...", transactions.size());
 
         while (!cancellation.isCancelled()) {
             // TODO: parallelize mining

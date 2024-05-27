@@ -2,6 +2,7 @@ package com.shrishdeshpande.qe.client;
 
 import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
 import com.shrishdeshpande.qe.server.BlockchainServer;
+import com.shrishdeshpande.qe.util.SocketMessages;
 import com.wultra.security.pqc.sike.crypto.KeyGenerator;
 import com.wultra.security.pqc.sike.model.ImplementationType;
 import com.wultra.security.pqc.sike.model.Party;
@@ -125,7 +126,7 @@ public class BlockchainClient {
     public void transact(String to, double amount) {
         CryptoTransaction t = new CryptoTransaction(name, to, amount);
 
-        // TODO: BROADCAST
+        SocketMessages.newTransaction(t);
 
         BlockchainServer.getInstance().addTransaction(t);
 

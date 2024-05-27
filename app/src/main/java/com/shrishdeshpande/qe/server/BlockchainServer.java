@@ -59,4 +59,8 @@ public class BlockchainServer {
             }
         }
     }
+
+    public void clearMemPool() {
+        mempool.clear();
+    }
 }

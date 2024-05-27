@@ -1,10 +1,8 @@
 package com.shrishdeshpande.qe.common;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.shrishdeshpande.qe.api.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +45,16 @@ public class Blockchain {
 
     public List<Block> getBlocks() {
         return blocks;
+    }
+
+    public void replaceChain(List<Block> blocks) {
+        this.lock.lock();
+
+        this.blocks.clear();
+
+        this.blocks.addAll(blocks);
+
+        this.lock.unlock();
     }
 
     public void addBlock(Block block) {

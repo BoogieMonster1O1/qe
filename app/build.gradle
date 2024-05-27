@@ -43,6 +43,10 @@ java {
     }
 }
 
+run {
+     standardInput = System.in
+}
+
 application {
     // Define the main class for the application.
     mainClass = 'com.shrishdeshpande.qe.App'

@@ -8,11 +8,15 @@ import com.shrishdeshpande.qe.api.transaction.Transaction;
 import com.shrishdeshpande.qe.client.BlockchainClient;
 import com.shrishdeshpande.qe.common.Blockchain;
 import com.shrishdeshpande.qe.server.BlockchainServer;
+import com.shrishdeshpande.qe.util.SocketMessages;
+import com.shrishdeshpande.qe.util.UnixDomainSocketClient;
+import com.shrishdeshpande.qe.util.UnixDomainSocketServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
+import java.util.List;
 import java.util.Scanner;
 
 public class App {
@@ -27,18 +31,27 @@ public class App {
         Security.addProvider(new BouncyCastleProvider());
         System.out.println(new App().getGreeting());
 
-        if (args.length != 1) {
+        if (args.length != 2) {
             LOGGER.error("Invalid number of arguments");
             System.exit(1);
         }
 
         String path = args[0];
 
+        String ipcRole = args[1];
+        boolean server = ipcRole.equals("server");
+
         LOGGER.info("Initializing blockchain with path {}", path);
 
         BlockchainClient.init(path);
         BlockchainServer.initWithName(BlockchainClient.getInstance().name);
         Blockchain.init(path);
+
+        if (server) {
+            UnixDomainSocketServer.start();
+        } else {
+            UnixDomainSocketClient.start();
+        }
 
         Scanner sc = new Scanner(System.in);
 
@@ -55,14 +68,25 @@ public class App {
                     int amount = Integer.parseInt(sc.nextLine());
                     BlockchainClient.getInstance().transact(recipient, amount);
                     break;
+                case "transactions":
+                    Blockchain.getInstance()
+                            .getBlocks()
+                            .stream()
+                            .map(Block::getTransactions)
+                            .flatMap(List::stream)
+                            .sorted()
+                            .map(Transaction::readable).forEach(System.out::println);
+                    break;
                 case "genesis":
                     Block gen = BlockchainServer.getInstance().genesis();
                     Blockchain.getInstance().addBlock(gen);
+                    SocketMessages.newBlock(Blockchain.getInstance().getBlocks());
                     break;
                 case "mine":
                     Block last = Blockchain.getInstance().getBlocks().getLast();
                     Block block = BlockchainServer.getInstance().mine(last);
                     Blockchain.getInstance().addBlock(block);
+                    SocketMessages.newBlock(Blockchain.getInstance().getBlocks());
                     break;
                 case "mempool":
                     BlockchainServer.getInstance().mempool.stream().map(Transaction::readable).forEach(System.out::println);

@@ -5,12 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shrishdeshpande.qe.util.ChronoUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.swing.text.DateFormatter;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-
 public class CryptoTransaction extends Transaction {
     private final double amount;
 

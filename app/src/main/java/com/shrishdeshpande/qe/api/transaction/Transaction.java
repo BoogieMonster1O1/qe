@@ -2,6 +2,8 @@ package com.shrishdeshpande.qe.api.transaction;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.shrishdeshpande.qe.util.IpcRepresentable;
+import org.jetbrains.annotations.NotNull;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -13,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = CryptoTransaction.class, name = "crypto"),
 //        @JsonSubTypes.Type(value = NftTransaction.class, name = "nft")
 })
-public abstract class Transaction {
+public abstract class Transaction implements IpcRepresentable, Comparable<Transaction> {
     protected final String sender;
 
     protected final String recipient;
@@ -38,6 +40,11 @@ public abstract class Transaction {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public int compareTo(@NotNull Transaction o) {
+        return Long.compare(this.timestamp, o.timestamp);
     }
 
     public abstract String hash();
