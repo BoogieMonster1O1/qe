@@ -8,6 +8,7 @@ import com.shrishdeshpande.qe.api.transaction.Transaction;
 import com.shrishdeshpande.qe.client.BlockchainClient;
 import com.shrishdeshpande.qe.common.Blockchain;
 import com.shrishdeshpande.qe.server.BlockchainServer;
+import com.shrishdeshpande.qe.util.HttpServer;
 import com.shrishdeshpande.qe.util.SocketMessages;
 import com.shrishdeshpande.qe.util.UnixSocketClient;
 import com.shrishdeshpande.qe.util.UnixSocketServer;
@@ -52,6 +53,7 @@ public class App {
             UnixSocketServer.start();
         } else {
             UnixSocketClient.start();
+            HttpServer.start();
         }
 
         Scanner sc = new Scanner(System.in);

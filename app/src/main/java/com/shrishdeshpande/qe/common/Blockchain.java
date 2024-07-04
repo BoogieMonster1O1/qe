@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shrishdeshpande.qe.api.Block;
-import com.shrishdeshpande.qe.api.transaction.ContractTransaction;
-import com.shrishdeshpande.qe.api.transaction.MintTransaction;
-import com.shrishdeshpande.qe.api.transaction.NftTransaction;
-import com.shrishdeshpande.qe.api.transaction.Transaction;
+import com.shrishdeshpande.qe.api.transaction.*;
 import com.shrishdeshpande.qe.client.BlockchainClient;
 import com.shrishdeshpande.qe.server.BlockchainServer;
 import com.shrishdeshpande.qe.util.SocketMessages;
@@ -217,5 +214,19 @@ public class Blockchain {
             throw new IllegalStateException("Blockchain has not been initialized");
         }
         return instance;
+    }
+
+    public double getBalance(String name) {
+        double bal = 0;
+        for (Block block : this.blocks) {
+            for (Transaction transaction : block.getTransactions()) {
+                if (transaction instanceof CryptoTransaction ct && Objects.equals(ct.getRecipient(), name)) {
+                    bal += ct.getAmount();
+                } else if (transaction instanceof CryptoTransaction ct && Objects.equals(ct.getSender(), name)) {
+                    bal -= ct.getAmount();
+                }
+            }
+        }
+        return bal;
     }
 }
