@@ -25,7 +25,6 @@ public class Block {
     }
 
     public List<Transaction> getTransactions() {
-        System.out.println("Returning transactions " + transactions.size());
         return transactions;
     }
 

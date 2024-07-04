@@ -76,23 +76,25 @@ public class Blockchain {
 
         boolean dirty = false;
 
-        for (Transaction e : transactions) {
-            if (e instanceof ContractTransaction && Objects.equals(e.getRecipient(), BlockchainClient.getInstance().name)) {
-                LOGGER.info("Executing contract transaction: {}", e);
-                if (((ContractTransaction) e).getAmount() < 100) {
-                    LOGGER.error("Contract transaction amount too low: {}", e);
-                    break;
-                }
-                List<String> currentNfts = getCurrentNfts();
-                if (currentNfts.isEmpty()) {
-                    LOGGER.error("Not enough NFTs to execute contract transaction: {}", e);
-                    break;
-                }
-                NftTransaction newTrans = new NftTransaction(BlockchainClient.getInstance().name, e.getSender(), System.currentTimeMillis(), currentNfts.get(0), 0);
-                BlockchainServer.getInstance().addTransaction(newTrans);
-                dirty = true;
-            }
-        }
+//        for (Transaction e : transactions) {
+//            if (e instanceof ContractTransaction && Objects.equals(e.getRecipient(), BlockchainClient.getInstance().name)) {
+//                LOGGER.info("Executing contract transaction: {}", e);
+//                if (((ContractTransaction) e).getAmount() < 100) {
+//                    LOGGER.error("Contract transaction amount too low: {}", e);
+//                    break;
+//                }
+//                List<String> currentNfts = getCurrentNfts();
+//                if (currentNfts.isEmpty()) {
+//                    LOGGER.error("Not enough NFTs to execute contract transaction: {}", e);
+//                    break;
+//                }
+//                NftTransaction newTrans = new NftTransaction(BlockchainClient.getInstance().name, e.getSender(), System.currentTimeMillis(), currentNfts.get(0), 0);
+//                BlockchainServer.getInstance().addTransaction(newTrans);
+//                dirty = true;
+//            }
+//        }
+
+        writeToFile();
 
         this.lock.unlock();
 
@@ -105,6 +107,22 @@ public class Blockchain {
         }
     }
 
+    public @NotNull List<String> getNftsOf(String name) {
+        List<String> currentNfts = new LinkedList<>();
+        for (Block block : this.blocks) {
+            for (Transaction transaction : block.getTransactions()) {
+                if (transaction instanceof MintTransaction mt && Objects.equals(mt.getRecipient(), name)) {
+                    currentNfts.add(mt.getIndivisibleId());
+                } else if (transaction instanceof NftTransaction nt && Objects.equals(nt.getSender(), name)) {
+                    currentNfts.remove(nt.getIndivisibleId());
+                } else if (transaction instanceof NftTransaction nt && Objects.equals(nt.getRecipient(), name)) {
+                    currentNfts.add(nt.getIndivisibleId());
+                }
+            }
+        }
+        return currentNfts;
+    }
+
     public @NotNull List<String> getCurrentNfts() {
         List<String> currentNfts = new LinkedList<>();
         for (Block block : this.blocks) {
@@ -113,6 +131,8 @@ public class Blockchain {
                     currentNfts.add(mt.getIndivisibleId());
                 } else if (transaction instanceof NftTransaction nt && Objects.equals(nt.getSender(), BlockchainClient.getInstance().name)) {
                     currentNfts.remove(nt.getIndivisibleId());
+                } else if (transaction instanceof NftTransaction nt && Objects.equals(nt.getRecipient(), BlockchainClient.getInstance().name)) {
+                    currentNfts.add(nt.getIndivisibleId());
                 }
             }
         }
@@ -125,9 +145,40 @@ public class Blockchain {
         blocks.sort(Comparator.comparing(Block::timestamp));
         this.lock.unlock();
 
+        List<Transaction> transactions = block.getTransactions().stream().toList();
+
+        boolean dirty = false;
+
         this.lock.lock();
+
+//        for (Transaction e : transactions) {
+//            if (e instanceof ContractTransaction && Objects.equals(e.getRecipient(), BlockchainClient.getInstance().name)) {
+//                LOGGER.info("Executing contract transaction: {}", e);
+//                if (((ContractTransaction) e).getAmount() < 100) {
+//                    LOGGER.error("Contract transaction amount too low: {}", e);
+//                    break;
+//                }
+//                List<String> currentNfts = getCurrentNfts();
+//                if (currentNfts.isEmpty()) {
+//                    LOGGER.error("Not enough NFTs to execute contract transaction: {}", e);
+//                    break;
+//                }
+//                NftTransaction newTrans = new NftTransaction(BlockchainClient.getInstance().name, e.getSender(), System.currentTimeMillis(), currentNfts.getFirst(), 0);
+//                BlockchainServer.getInstance().addTransaction(newTrans);
+//                dirty = true;
+//            }
+//        }
+
         writeToFile();
         this.lock.unlock();
+
+        if (dirty) {
+            Block last = Blockchain.getInstance().getBlocks().getLast();
+            Block block2 = BlockchainServer.getInstance().mine(last);
+            BlockchainServer.getInstance().clearMemPool();
+            Blockchain.getInstance().addBlock(block2);
+            SocketMessages.newBlock(Blockchain.getInstance().getBlocks());
+        }
     }
 
     private void writeToFile() {

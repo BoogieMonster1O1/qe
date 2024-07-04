@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shrishdeshpande.qe.api.Block;
 import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
+import com.shrishdeshpande.qe.api.transaction.Transaction;
 import com.shrishdeshpande.qe.common.Blockchain;
 import com.shrishdeshpande.qe.server.BlockchainServer;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +38,7 @@ public class SocketMessages {
             Blockchain.getInstance().replaceChain(cw.blocks());
             LOGGER.info("Received new blockchain with {} blocks", cw.blocks().size());
             BlockchainServer.getInstance().clearMemPool();
-        } else if (representable instanceof CryptoTransaction ct) {
+        } else if (representable instanceof Transaction ct) {
             BlockchainServer.getInstance().addTransaction(ct);
             LOGGER.info("Received transaction");
         }
@@ -47,7 +48,7 @@ public class SocketMessages {
         newMessage(new ChainWrapper(chain));
     }
 
-    public static void newTransaction(CryptoTransaction t) {
+    public static void newTransaction(Transaction t) {
         newMessage(t);
     }
 

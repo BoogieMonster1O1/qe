@@ -3,6 +3,8 @@ package com.shrishdeshpande.qe.client;
 import com.shrishdeshpande.qe.api.transaction.ContractTransaction;
 import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
 import com.shrishdeshpande.qe.api.transaction.MintTransaction;
+import com.shrishdeshpande.qe.api.transaction.NftTransaction;
+import com.shrishdeshpande.qe.common.Blockchain;
 import com.shrishdeshpande.qe.server.BlockchainServer;
 import com.shrishdeshpande.qe.util.SocketMessages;
 import com.wultra.security.pqc.sike.crypto.KeyGenerator;
@@ -129,10 +131,18 @@ public class BlockchainClient {
 
     public void contract(String to, double amount) {
         ContractTransaction t = new ContractTransaction(name, to, amount);
+        List<String> nfts = Blockchain.getInstance().getNftsOf(to);
+        if (nfts.isEmpty()) {
+            LOGGER.error("Not enough NFTs to execute contract transaction");
+            return;
+        }
+        NftTransaction t2 = new NftTransaction(to, name, System.currentTimeMillis(), nfts.getFirst(), 0);
 
         SocketMessages.newTransaction(t);
+        SocketMessages.newTransaction(t2);
 
         BlockchainServer.getInstance().addTransaction(t);
+        BlockchainServer.getInstance().addTransaction(t2);
 
         LOGGER.info("Contract Transaction sent: {}", t);
     }
@@ -152,6 +162,7 @@ public class BlockchainClient {
         for (int i = 0; i < n; i++) {
             MintTransaction t = new MintTransaction(name, batchId + i);
             BlockchainServer.getInstance().addTransaction(t);
+            SocketMessages.newTransaction(t);
         }
     }
 }
