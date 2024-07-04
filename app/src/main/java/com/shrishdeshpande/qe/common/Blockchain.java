@@ -4,8 +4,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shrishdeshpande.qe.api.Block;
+import com.shrishdeshpande.qe.api.transaction.ContractTransaction;
+import com.shrishdeshpande.qe.api.transaction.MintTransaction;
+import com.shrishdeshpande.qe.api.transaction.NftTransaction;
+import com.shrishdeshpande.qe.api.transaction.Transaction;
+import com.shrishdeshpande.qe.client.BlockchainClient;
+import com.shrishdeshpande.qe.server.BlockchainServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -50,11 +58,53 @@ public class Blockchain {
     public void replaceChain(List<Block> blocks) {
         this.lock.lock();
 
+        List<Block> newBlocks = new LinkedList<>();
+        for (Block block : blocks) {
+            if (!this.blocks.contains(block)) {
+                newBlocks.add(block);
+            }
+        }
+
         this.blocks.clear();
 
         this.blocks.addAll(blocks);
 
+        List<Transaction> transactions = newBlocks.stream()
+                .flatMap(block -> block.getTransactions().stream())
+                .toList();
+
+        for (Transaction e : transactions) {
+            if (e instanceof ContractTransaction && Objects.equals(e.getRecipient(), BlockchainClient.getInstance().name)) {
+                LOGGER.info("Executing contract transaction: {}", e);
+                if (((ContractTransaction) e).getAmount() < 100) {
+                    LOGGER.error("Contract transaction amount too low: {}", e);
+                    break;
+                }
+                List<String> currentNfts = getCurrentNfts();
+                if (currentNfts.isEmpty()) {
+                    LOGGER.error("Not enough NFTs to execute contract transaction: {}", e);
+                    break;
+                }
+                NftTransaction newTrans = new NftTransaction(BlockchainClient.getInstance().name, e.getSender(), System.currentTimeMillis(), currentNfts.get(0), 0);
+                BlockchainServer.getInstance().addTransaction(newTrans);
+            }
+        }
+
         this.lock.unlock();
+    }
+
+    private @NotNull List<String> getCurrentNfts() {
+        List<String> currentNfts = new LinkedList<>();
+        for (Block block : this.blocks) {
+            for (Transaction transaction : block.getTransactions()) {
+                if (transaction instanceof MintTransaction mt && Objects.equals(mt.getRecipient(), BlockchainClient.getInstance().name)) {
+                    currentNfts.add(mt.getIndivisibleId());
+                } else if (transaction instanceof NftTransaction nt && Objects.equals(nt.getSender(), BlockchainClient.getInstance().name)) {
+                    currentNfts.remove(nt.getIndivisibleId());
+                }
+            }
+        }
+        return currentNfts;
     }
 
     public void addBlock(Block block) {

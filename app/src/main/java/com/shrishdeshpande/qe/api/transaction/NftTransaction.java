@@ -28,4 +28,8 @@ public class NftTransaction extends Transaction {
     public String readable() {
         return "Sold %s from %s to %s at %s".formatted(indivisibleId, sender, recipient, timestamp);
     }
+
+    public String getIndivisibleId() {
+        return indivisibleId;
+    }
 }

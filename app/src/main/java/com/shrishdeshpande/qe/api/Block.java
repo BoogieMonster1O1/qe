@@ -37,7 +37,7 @@ public class Block {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Block block)) return false;
-        return Objects.equals(header, block.header) && Objects.equals(transactions, block.transactions);
+        return Objects.equals(header, block.header);
     }
 
     @Override
