@@ -7,13 +7,14 @@ import org.jetbrains.annotations.NotNull;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
         property = "transtype",
         defaultImpl = CryptoTransaction.class
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CryptoTransaction.class, name = "crypto"),
-//        @JsonSubTypes.Type(value = NftTransaction.class, name = "nft")
+        @JsonSubTypes.Type(value = MintTransaction.class, name = "nft_mint"),
+        @JsonSubTypes.Type(value = NftTransaction.class, name = "nft_sale"),
+        @JsonSubTypes.Type(value = ContractTransaction.class, name = "contract")
 })
 public abstract class Transaction implements IpcRepresentable, Comparable<Transaction> {
     protected final String sender;
@@ -55,6 +56,8 @@ public abstract class Transaction implements IpcRepresentable, Comparable<Transa
 
     public enum Type {
         CRYPTO,
-        NFT
+        NFT_MINT,
+        NFT_SALE,
+        CONTRACT
     }
 }

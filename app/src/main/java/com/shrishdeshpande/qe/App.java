@@ -21,6 +21,7 @@ import java.util.Scanner;
 
 public class App {
     private static final Logger LOGGER = LogManager.getLogger(App.class);
+    public static boolean isServer = false;
 
     public String getGreeting() {
         return "Hello World!";
@@ -97,6 +98,10 @@ public class App {
                 case "blocks":
                     Blockchain.getInstance().getBlocks().stream().map(Block::readable).forEach(System.out::println);
                     break;
+                case "mint":
+                    System.out.println("Enter number of NFts to mint: ");
+                    int n = Integer.parseInt(sc.nextLine());
+                    BlockchainClient.getInstance().mint(n);
             }
             line();
         }

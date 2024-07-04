@@ -1,6 +1,7 @@
 package com.shrishdeshpande.qe.client;
 
 import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
+import com.shrishdeshpande.qe.api.transaction.MintTransaction;
 import com.shrishdeshpande.qe.server.BlockchainServer;
 import com.shrishdeshpande.qe.util.SocketMessages;
 import com.wultra.security.pqc.sike.crypto.KeyGenerator;
@@ -18,6 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BlockchainClient {
     public static final Logger LOGGER = LogManager.getLogger(BlockchainClient.class);
@@ -131,5 +134,13 @@ public class BlockchainClient {
         BlockchainServer.getInstance().addTransaction(t);
 
         LOGGER.info("Transaction sent: {}", t);
+    }
+
+    public void mint(int n) {
+        String batchId = "NFT" + System.currentTimeMillis();
+        for (int i = 0; i < n; i++) {
+            MintTransaction t = new MintTransaction(name, batchId + i);
+            BlockchainServer.getInstance().addTransaction(t);
+        }
     }
 }
