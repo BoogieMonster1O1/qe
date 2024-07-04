@@ -10,6 +10,7 @@ import com.shrishdeshpande.qe.api.transaction.NftTransaction;
 import com.shrishdeshpande.qe.api.transaction.Transaction;
 import com.shrishdeshpande.qe.client.BlockchainClient;
 import com.shrishdeshpande.qe.server.BlockchainServer;
+import com.shrishdeshpande.qe.util.SocketMessages;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -73,6 +74,8 @@ public class Blockchain {
                 .flatMap(block -> block.getTransactions().stream())
                 .toList();
 
+        boolean dirty = false;
+
         for (Transaction e : transactions) {
             if (e instanceof ContractTransaction && Objects.equals(e.getRecipient(), BlockchainClient.getInstance().name)) {
                 LOGGER.info("Executing contract transaction: {}", e);
@@ -87,13 +90,22 @@ public class Blockchain {
                 }
                 NftTransaction newTrans = new NftTransaction(BlockchainClient.getInstance().name, e.getSender(), System.currentTimeMillis(), currentNfts.get(0), 0);
                 BlockchainServer.getInstance().addTransaction(newTrans);
+                dirty = true;
             }
         }
 
         this.lock.unlock();
+
+        if (dirty) {
+            Block last = Blockchain.getInstance().getBlocks().getLast();
+            Block block = BlockchainServer.getInstance().mine(last);
+            Blockchain.getInstance().addBlock(block);
+            SocketMessages.newBlock(Blockchain.getInstance().getBlocks());
+            BlockchainServer.getInstance().clearMemPool();
+        }
     }
 
-    private @NotNull List<String> getCurrentNfts() {
+    public @NotNull List<String> getCurrentNfts() {
         List<String> currentNfts = new LinkedList<>();
         for (Block block : this.blocks) {
             for (Transaction transaction : block.getTransactions()) {

@@ -1,5 +1,6 @@
 package com.shrishdeshpande.qe.client;
 
+import com.shrishdeshpande.qe.api.transaction.ContractTransaction;
 import com.shrishdeshpande.qe.api.transaction.CryptoTransaction;
 import com.shrishdeshpande.qe.api.transaction.MintTransaction;
 import com.shrishdeshpande.qe.server.BlockchainServer;
@@ -124,6 +125,16 @@ public class BlockchainClient {
             throw new IllegalStateException("Client has not been initialized");
         }
         return instance;
+    }
+
+    public void contract(String to, double amount) {
+        ContractTransaction t = new ContractTransaction(name, to, amount);
+
+        SocketMessages.newTransaction(t);
+
+        BlockchainServer.getInstance().addTransaction(t);
+
+        LOGGER.info("Contract Transaction sent: {}", t);
     }
 
     public void transact(String to, double amount) {

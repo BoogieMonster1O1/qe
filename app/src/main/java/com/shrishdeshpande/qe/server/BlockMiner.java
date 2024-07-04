@@ -33,10 +33,7 @@ public class BlockMiner {
         long nonce = 0;
         while (true) {
             byte[] hash = BlockHeader.hash(previousHash, nonce, merkleRoot);
-            if (nonce % 25 == 0) {
-//                LOGGER.info("Mining block with nonce {}", nonce);
-            }
-            // Difficulty: 8 leading zeros
+            // Difficulty: 16 leading bit zeroes
             if (hash[0] == 0 && hash[1] == 0) {
                 LOGGER.info("Mined block with nonce {}", nonce);
                 return new Block.Builder()

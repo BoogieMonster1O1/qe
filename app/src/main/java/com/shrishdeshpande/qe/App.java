@@ -99,9 +99,20 @@ public class App {
                     Blockchain.getInstance().getBlocks().stream().map(Block::readable).forEach(System.out::println);
                     break;
                 case "mint":
-                    System.out.println("Enter number of NFts to mint: ");
+                    System.out.println("Enter number of NFTs to mint: ");
                     int n = Integer.parseInt(sc.nextLine());
                     BlockchainClient.getInstance().mint(n);
+                    break;
+                case "nfts":
+                    Blockchain.getInstance().getCurrentNfts().forEach(System.out::println);
+                    break;
+                case "contract":
+                    System.out.println("Enter recipient:");
+                    String recipientContract = sc.nextLine();
+                    System.out.println("Enter amount:");
+                    int amountContract = Integer.parseInt(sc.nextLine());
+                    BlockchainClient.getInstance().contract(recipientContract, amountContract);
+                    break;
             }
             line();
         }
